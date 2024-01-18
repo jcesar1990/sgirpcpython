@@ -25,7 +25,8 @@ makedir(pathfiles)
 
 # URLs and file paths
 url = "https://aviationweather.gov/data/metar/?id=MMMX&hours=48&include_taf=yes"
-fileout = "../files/MMMX.txt"
+fileoutmmmx = "../files/MMMX.txt"
+fileoutmmsm = "../files/MMSM.txt"
 
 # Selenium configuration
 chrome_options = Options()
@@ -50,19 +51,49 @@ print("Load data")
 time.sleep(5)
 
 
-# Wait for the element with id "data-container" to be present in the DOM
-data_container = WebDriverWait(driver, 10).until(
+# Wait for the element with id "data-container" to be present in the DOM from MMMX
+data_containermmmx = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, 'data-container'))
 )
 
 # Print the content of the div
-print(data_container.text)
+print(data_containermmmx.text)
 
 # Save the data to the text file
-with open(fileout, 'w', encoding='utf-8') as file:
-    file.write(data_container.text)
+with open(fileoutmmmx, 'w', encoding='utf-8') as file:
+    file.write(data_containermmmx.text)
 
-print("Los datos se han guardado en el txt", fileout)
+print("Los datos se han guardado en el txt", fileoutmmmx)
+
+# Find the datapicker
+driver.find_element(By.XPATH,'//*[@id="id"]')\
+    .clear()
+time.sleep(2)
+
+# Enter ID from Santa Lucia Airport
+driver.find_element(By.XPATH,'//*[@id="id"]')\
+    .send_keys("MMSM")
+
+time.sleep(5)
+
+driver.find_element(By.XPATH,'//*[@id="go_btn"]')\
+    .click()
+print("Load data")
+time.sleep(10)
+
+# Wait for the element with id "data-container" to be present in the DOM from MMMX
+data_containermmsm = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, 'data-container'))
+)
+
+# Print the content of the div
+print(data_containermmsm.text)
+
+# Save the data to the text file
+with open(fileoutmmsm, 'w', encoding='utf-8') as file:
+    file.write(data_containermmsm.text)
+
+print("Los datos se han guardado en el txt", fileoutmmsm)
 
 # Close the browser
 driver.quit()
