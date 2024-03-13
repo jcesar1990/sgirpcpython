@@ -2,63 +2,64 @@ import os
 import json
 import requests
 import urllib, urllib3
+import csv
+from datetime import date, datetime
 
-url = 'https://smn.conagua.gob.mx/tools/PHP/sivea_v3/php/getTemperatura.php?per=T30'
-file = 'C:/Users/meteorologia/Desktop/files/CONAGUA.json'
-csv =  'C:/Users/meteorologia/Desktop/files/CONAGUA.csv'
-r = urllib.request.urlopen(url)
-f = open(file,'wb')
-f.write(r.read())
-f.close()
-print(file)
-print('JSON de CONAGUA obtenido')
 
-def leer_json(file):
-    try:
-        with open(file, 'r') as archivo:
-            datos = json.load(archivo)
-        return datos
-    except FileNotFoundError:
-        print(f"El archivo {file} no se encontró.")
-    except json.JSONDecodeError:
-        print(f"No se pudo decodificar el JSON en {file}.")
 
-indice = 0
-datos_json = leer_json(file)
-def extraer_nombres_variables(datos_json, variables, indice):
-    nombres_extraidos = {}
-    for variable in variables:
-        try:
-            valor = datos_json[indice][variable]
-            nombres_extraidos[variable] = valor
-        except KeyError:
-            print(f"La variable '{variable}' no se encontró en el JSON.")
-            return None  # Retorna None si no se encuentra una variable
-        
-    return nombres_extraidos
+def conagua(parametro):
 
-# Lista de variables que quieres extraer
-variables_interesantes = ["fecha_local", "estacion_m", "nombre_estacion", "temperatura", "longitud", "latitud"]
-
-while indice < len(datos_json):
-    nombres_extraidos = extraer_nombres_variables(datos_json, variables_interesantes, indice)
+    urltemp = 'https://smn.conagua.gob.mx/tools/PHP/sivea_v3/php/getTemperatura.php?per=T30'
+    urlpre = 'https://smn.conagua.gob.mx/tools/PHP/sivea_v3/php/getPrecipitacion.php?per=B30'
+    urlwind = 'https://smn.conagua.gob.mx/tools/GUI/sivea_v3/php/getViento.php?per=T30'
+    file = 'C:/Users/meteorologia/Desktop/files/CONAGUA'+parametro+'.json'
+    filecsv =  'C:/Users/meteorologia/Desktop/files/CONAGUA'+parametro+'.csv'
     
-    if nombres_extraidos:
-        print("Nombres de variables extraídos:")
-        print(nombres_extraidos)
-        
-        if not os.path.exists(csv):
-            # Salvamos el acumulado en el archivo csvsave
-            with open(csv,'w',newline='') as csvfile:
-                # Creamos el arcicho
-            
-        
-        # Incrementa el índice solo si la función se ejecutó con éxito
-        indice += 1
-    else:
-        # Si no se encuentra una variable, termina el bucle
-        break
+    if parametro == 'temperatura':
+        url=urltemp
+    elif parametro == 'velocidad':
+        url=urlwind
+    elif parametro == 'precipitacion':
+        url=urlpre
+    
+    print(url)
 
-print("Índice final:", indice)
+    #Descarga del json del portal de CONAGUA
+    r = urllib.request.urlopen(url)
+    f = open(file,'wb')
+    f.write(r.read())
+    f.close()
+    print(file)
+    print('JSON de CONAGUA obtenido')
 
+    def extraer_variables(file):
+        with open(file) as contenido:
+            variables = json.load(contenido)
+            for valores in variables:
+                fechalocal=(valores.get("fecha_local"))
+                estado=(valores.get("estado")) 
+                estacion=(valores.get("nombre_estacion"))
+                temperatura=(valores.get(parametro))
+                longitud=(valores.get("longitud"))
+                latitud=(valores.get("latitud"))
+                extraccion=(f"{fechalocal},{estado},{estacion},{temperatura},{longitud},{latitud}")
+                print(extraccion)
+                #Si el archivo csv no existe, lo crea, en caso de existir, conctatenara los nuevos datos
+                if not os.path.exists(filecsv):
+                    with open(filecsv,'w',newline='') as csvfile:
+                        csv_writer=csv.writer(csvfile)
+                        csv_writer.writerow(['fecha', 'localidad', 'estacion', parametro, 'longitud', 'latitud'])
+                        csv_writer.writerow([fechalocal, estado, estacion, temperatura, longitud, latitud])
+                    print('Archivo guardado')
+                else:
+                    with open(filecsv, 'a', newline='') as csvfile:
+                        csv_writer = csv.writer(csvfile)
+                        csv_writer.writerow([fechalocal, estado, estacion, temperatura, longitud, latitud])
+                    print('Datos añadidos al archivo existente')
+                
+                    
+    extraer_variables(file)
 
+test1=conagua("temperatura")
+test2=conagua("precipitacion")
+test3=conagua("velocidad")
