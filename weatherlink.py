@@ -8,28 +8,29 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
-import credenciales
+import paths
 
-def weatherlink(estacion,url):
+def weatherlinkweb(estacion,url):
      # Get date
     now=datetime.now()
     fecha=(now.strftime("%d-%m-%y"))
     print(fecha)
 
     # Paths
-    filetxt = "C:/Users/meteorologia/Desktop/files/"+estacion+".txt"
-    filecsv = "C:/Users/meteorologia/Desktop/files/"+estacion+".csv"
-    urlogin="https://www.weatherlink.com"
-    user=credenciales.User
-    pwd=credenciales.Password
+    filetxt = paths.file+estacion+".txt"
+    print(filetxt)
+    filecsv = paths.file+estacion+".csv"
+    print(filecsv)
+    user=paths.User
+    pwd=paths.Password
     print(user)
 
     # Selenium configuration
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--headless')
     chrome_options.add_argument("--disable-gpu")  # Necessary on some systems
     chrome_options.add_argument("--window-size=1920,1080")  # Window size
-    driver_path = 'C:/Users/meteorologia/Documents/sgirpcpythonlinux/chromedriver-win64/chromedriver-win64/chromedriver.exe'
+    driver_path = paths.chromedriver
     service = ChromeService(executable_path=driver_path)
 
     # Create a Selenium WebDriver instance
@@ -60,7 +61,7 @@ def weatherlink(estacion,url):
 
     # Wait for the element with XPATH get all content into the table
     data_container = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="scroll-container"]'))
+        EC.presence_of_element_located((By.XPATH, paths.tableboletinweatherlink))
     )
 
     # Print the content of the div
@@ -75,3 +76,5 @@ def weatherlink(estacion,url):
     # Close the browser
     print("Datos de la estacion",estacion,"obtenidos")
     driver.quit()
+
+test=weatherlinkweb("LALADRILLERA","https://www.weatherlink.com/bulletin/191c4832-5370-43ba-8274-7be9be6517a7")
