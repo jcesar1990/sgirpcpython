@@ -70,11 +70,22 @@ def weatherlinkweb(estacion,url):
     # Save the data to the text file
     with open(filetxt, 'w', encoding='utf-8') as file:
         file.write(data_container.text)
+    
+    # fechadata = driver.find_element(By.CLASS_NAME,'update-info')
+    # print(fechadata.text)
+    
 
     # print("Los datos se han guardado en el txt", filetxt)
 
     # Close the browser
     print("Datos de la estacion",estacion,"obtenidos")
     driver.quit()
+try:
+    test=weatherlinkweb("LALADRILLERA","https://www.weatherlink.com/bulletin/191c4832-5370-43ba-8274-7be9be6517a7")
+except Exception as e:
+    print('ERROR:',e)
 
-test=weatherlinkweb("LALADRILLERA","https://www.weatherlink.com/bulletin/191c4832-5370-43ba-8274-7be9be6517a7")
+try:
+    test=weatherlinkweb("LandadeMatamoros","https://www.weatherlink.com/bulletin/45848948-7ad1-4889-9665-35d70f5f60ff")
+except Exception as e:
+    print('ERROR:',e)
