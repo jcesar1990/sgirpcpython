@@ -1,59 +1,100 @@
-import urllib.request
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
+import paths
+import os
 import time
-from datetime import datetime
-from datetime import date, datetime, timedelta,timezone
-import threading
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
 
-def timer(timer_runs):
-    while timer_runs.is_set():
+# Function to create directories
+def makedir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("El directorio " + path + " ha sido creado")
+    else:
+        print("El directorio " + path + " ya existe")
 
-        url="https://www.aviationweather.gov/metar/data?ids=mmmx&format=raw&date=&hours=48"
-        filehtml= 'C:/Users/videowall_03/Documents/Estaciones/MMMX.txt'
-        filein= 'C:/Users/videowall_03/Documents/Estaciones/MMMX.txt'
-        fileout= 'C:/Apache24/htdocs/estacionesMet/files/MMMX.csv'
+# Directories
+pathestaciones = "../estaciones"
+pathfiles = "../files"
 
-        #Peticion para compiar los datos del html del METAR
-        
-        r = requests.get(url)
-        soup= BeautifulSoup(r.content, "html.parser")
-        # tag=soup.find("code")
-        # datos=tag.text
-        # print(datos)
+makedir(pathestaciones)
+makedir(pathfiles)
 
-        r = urllib.request.urlopen(url)
-        f = open(filehtml,'wb')
-        f.write(r.read())
-        f.close()
-        #print(file1)
-        print('Datos del html del METAR descargados')
+# URLs and file paths
+url = "https://aviationweather.gov/data/metar/?id=MMMX&hours=48&include_taf=yes"
+fileoutmmmx = paths.file+"MMMX.txt"
+fileoutmmsm = paths.file+"MMSM.txt"
 
-        with open(filehtml,"r") as fr:
-            contenido= fr.read()
+# Selenium configuration
+chrome_options = Options()
+# chrome_options.add_argument('--headless')
+chrome_options.add_argument("--disable-gpu")  # Necessary on some systems
+chrome_options.add_argument("--window-size=1920,1080")  # Window size
+driver_path = paths.chromedriver
+service = ChromeService(executable_path=driver_path)
 
-        soup= BeautifulSoup(contenido,"html.parser")
-        tags_code=soup.find_all("code")
-        with open(filein,"w") as f:
-            for etiqueta in tags_code:
-                tags_content=etiqueta.text
-                print(tags_content)
-                f.write(tags_content + "\n")
+# Create a Selenium WebDriver instance
+driver = webdriver.Chrome(service=service, options=chrome_options)
 
-        txt=open(filein)
-        txt1=txt.read()
-        #print(txt1)
-        txt2=txt1.replace(" ",",")
-        csv=open(fileout,"w")
-        csv.write(txt2)
-        txt.close()
-        csv.close()
+# Access the page with Selenium
+driver.get(url)
+print("Acceso a la página...")
+driver.find_element(By.XPATH,'//*[@id="main-display"]/div[2]/div[4]/div[1]/label')\
+    .click()
+print("Deseleccionamos TAF")
+driver.find_element(By.XPATH,'//*[@id="go_btn"]')\
+    .click()
+print("Load data")
+time.sleep(5)
 
-        final=datetime.now()
-        print(final)
-        time.sleep(1800)   # 10 minutos=600. Se le estaron un par de segundos del proceso.
-timer_runs = threading.Event()
-timer_runs.set()
-t = threading.Thread(target=timer, args=(timer_runs,))
-t.start()
+
+# Wait for the element with id "data-container" to be present in the DOM from MMMX
+data_containermmmx = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, 'data-container'))
+)
+
+# Print the content of the div
+print(data_containermmmx.text)
+
+# Save the data to the text file
+with open(fileoutmmmx, 'w', encoding='utf-8') as file:
+    file.write(data_containermmmx.text)
+
+print("Los datos se han guardado en el txt", fileoutmmmx)
+
+# Find the datapicker
+driver.find_element(By.XPATH,'//*[@id="id"]')\
+    .clear()
+time.sleep(2)
+
+# Enter ID from Santa Lucia Airport
+driver.find_element(By.XPATH,'//*[@id="id"]')\
+    .send_keys("MMSM")
+
+time.sleep(5)
+
+driver.find_element(By.XPATH,'//*[@id="go_btn"]')\
+    .click()
+print("Load data")
+time.sleep(10)
+
+# Wait for the element with id "data-container" to be present in the DOM from MMMX
+data_containermmsm = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, 'data-container'))
+)
+
+# Print the content of the div
+print(data_containermmsm.text)
+
+# Save the data to the text file
+with open(fileoutmmsm, 'w', encoding='utf-8') as file:
+    file.write(data_containermmsm.text)
+
+print("Los datos se han guardado en el txt", fileoutmmsm)
+
+# Close the browser
+driver.quit()

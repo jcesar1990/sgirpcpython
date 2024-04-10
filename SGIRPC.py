@@ -7,100 +7,77 @@ import threading
 
 def timer(timer_runs):
     while timer_runs.is_set():
-        espacio='-------------'
-
         try:
-            ModuloSGIRPC.procesolocal("GAMII", "GAM2S")
-            print("Se han filtrado los datos de la nueva estación en GAM")
+            ModuloSGIRPC.procesonew("iztacalco","AGOS")
         except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en GAM")
-
-        try:
-            ModuloSGIRPC.procesolocal("DelMar","TLAS")
-            print("Se han filtrado los  datos de la nueva estacion en Tlahuac")
-        except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en Tlahuac")
-
-        try:
-            ModuloSGIRPC.procesolocal("Cuajimal","STFS")
-            print("Se han filtrado los  datos de la nueva estacion en Santa Fe")
-        except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en Santa Fe")
-
-        try:
-            ModuloSGIRPC.procesolocal("Tezonco","TEZS")
-            print("Se han filtrado los  datos de la nueva estacion en Iztapalapa II")
-        except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en Iztapalapa II")
-
-        try:
-            ModuloSGIRPC.procesolocal("Lomas","LOMS")
-            print("Se han filtrado los  datos de la nueva estacion en Iztapalapa1")
-        except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en Iztapalapa1")
-
-        try:
-            ModuloSGIRPC.procesolocal("Belveder","BELVS")
-            print("Se han filtrado los  datos de la nueva estacion en Ajusco")
-        except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en Ajusco")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
         
         try:
-            ModuloSGIRPC.procesolocal("SanJeron", "SJEROS")
-            print("Se han filtrado los datos de la nueva estación en San Jeronimo")
+            ModuloSGIRPC.procesonew("azcapotzalco","FERS")
         except:
-            print("Hubo un problema al filtrar los datos de la nueva estación en San Jeronimo")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
+        
+        try:
+            ModuloSGIRPC.procesonew("cuautepec","CUAUS")
+        except:
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
+        
+        try:
+            ModuloSGIRPC.procesonew("cuajimalpa","STFS")
+        except:
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("iztacalco","AGOS")
+            ModuloSGIRPC.procesonew("miguelhidalgo","LEGS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("azcapotzalco","FERS")
+            ModuloSGIRPC.procesonew("milpaalta","MPAS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("cuautepec","CUAUS")
+            ModuloSGIRPC.procesonew("iztapa1","LOMS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("juarez", "SGIRPC")
+            ModuloSGIRPC.procesonew("topilejo","TPJS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("miguelhidalgo","LEGS")
+            ModuloSGIRPC.procesonew("coyoacan","SURS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("milpaalta","MPAS")
+            ModuloSGIRPC.procesonew("xochimilco","TLHS")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         try:
-            ModuloSGIRPC.proceso("topilejo","TPJS")
+            ModuloSGIRPC.procesoold("juarez", "SGIRPC")
         except:
-            print("Hubo un problema con la descarga de datos de esta estación")
-
-        try:
-            ModuloSGIRPC.proceso("coyoacan","SURS")
-        except:
-            print("Hubo un problema con la descarga de datos de esta estación")
-
-        try:
-            ModuloSGIRPC.proceso("xochimilco","TLHS")
-        except:
-            print("Hubo un problema con la descarga de datos de esta estación")
+            print("Hubo un problema con la descarga de datos de estaestación")
+            continue
 
         final=datetime.now()
         print(final)
-        time.sleep(270)   # 10 minutos=600.Se le estaron un par de segundos del proceso.
+        print("El programa se volverá a ejecutar 10 minutos despues de",final)
+        time.sleep(60)   # El tiempo esta dado en segundos 
 timer_runs = threading.Event()
 timer_runs.set()
 t = threading.Thread(target=timer, args=(timer_runs,))
-t.start()
-
+t.start()   

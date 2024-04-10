@@ -1,4 +1,6 @@
+import paths
 import os
+import shutil
 import json
 import requests
 import urllib, urllib3
@@ -8,12 +10,18 @@ from datetime import date, datetime
 
 
 def conagua(parametro):
+    
+    # Insertamos la fecha
+    now=datetime.now()
+    fecha=(now.strftime("%d-%m-%y"))
+    print(fecha)
 
     urltemp = 'https://smn.conagua.gob.mx/tools/PHP/sivea_v3/php/getTemperatura.php?per=T30'
     urlpre = 'https://smn.conagua.gob.mx/tools/PHP/sivea_v3/php/getPrecipitacion.php?per=B30'
     urlwind = 'https://smn.conagua.gob.mx/tools/GUI/sivea_v3/php/getViento.php?per=T30'
-    file = 'C:/Users/meteorologia/Desktop/files/CONAGUA'+parametro+'.json'
-    filecsv =  'C:/Users/meteorologia/Desktop/files/CONAGUA'+parametro+'.csv'
+    file = paths.file+'CONAGUA'+parametro+'.json'
+    filecsv =  paths.file+'CONAGUA'+parametro+'.csv'
+    csvsave =  paths.file+'CONAGUA'+parametro+fecha+'.csv'
     
     if parametro == 'temperatura':
         url=urltemp
@@ -55,11 +63,12 @@ def conagua(parametro):
                     with open(filecsv, 'a', newline='') as csvfile:
                         csv_writer = csv.writer(csvfile)
                         csv_writer.writerow([fechalocal, estado, estacion, temperatura, longitud, latitud])
+                        shutil.copy(filecsv,csvsave)
                     print('Datos añadidos al archivo existente')
                 
                     
     extraer_variables(file)
 
-test1=conagua("temperatura")
-test2=conagua("precipitacion")
-test3=conagua("velocidad")
+temperaturas=conagua("temperatura")
+lluvias=conagua("precipitacion")
+vientos=conagua("velocidad")
